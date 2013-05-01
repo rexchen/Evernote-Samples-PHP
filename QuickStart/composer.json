@@ -1,0 +1,7 @@
+{
+    "require": {
+        "opauth/opauth": "0.4.3",
+        "evernote/evernote": "1.23.3",
+        "opauth/evernote": "0.0.1"
+    }
+}

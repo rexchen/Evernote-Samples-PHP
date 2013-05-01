@@ -1,0 +1,27 @@
+{
+  "name": "opauth/evernote",
+  "description": "Evernote strategy for Opauth",
+  "keywords": [
+    "authentication",
+    "auth",
+    "evernote"
+  ],
+  "homepage": "https://github.com/evernote/opauth-evernote",
+  "version": "0.0.1",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Evernote",
+      "homepage": "https://github.com/evernote/opauth-evernote/contributors"
+    }
+  ],
+  "autoload": {
+    "psr-0": {
+      "": "."
+    }
+  },
+  "require": {
+    "php": ">=5.3",
+    "opauth/opauth": ">=0.2.0"
+  }
+}

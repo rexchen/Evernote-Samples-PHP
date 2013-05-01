@@ -1,0 +1,163 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
+    ],
+    "hash": "3b1e6f850c06cb88861101ebf8bc51dc",
+    "packages": [
+        {
+            "name": "evernote/evernote",
+            "version": "1.23.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/evernote/evernote-sdk-php.git",
+                "reference": "1.23.3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/evernote/evernote-sdk-php/zipball/1.23.3",
+                "reference": "1.23.3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "Apache"
+            ],
+            "authors": [
+                {
+                    "name": "Evernote and contributors",
+                    "homepage": "https://github.com/evernote/evernote-sdk-php/contributors"
+                }
+            ],
+            "description": "Evernote PHP SDK",
+            "homepage": "https://github.com/evernote/evernote-sdk-php",
+            "keywords": [
+                "api",
+                "evernote",
+                "sdk"
+            ],
+            "time": "2013-04-12 17:57:10"
+        },
+        {
+            "name": "opauth/evernote",
+            "version": "0.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/evernote/opauth-evernote.git",
+                "reference": "0.0.1"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/evernote/opauth-evernote/zipball/0.0.1",
+                "reference": "0.0.1",
+                "shasum": ""
+            },
+            "require": {
+                "opauth/opauth": ">=0.2.0",
+                "php": ">=5.3"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": {
+                    "": "."
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Evernote",
+                    "homepage": "https://github.com/evernote/opauth-evernote/contributors"
+                }
+            ],
+            "description": "Evernote strategy for Opauth",
+            "homepage": "https://github.com/evernote/opauth-evernote",
+            "keywords": [
+                "Authentication",
+                "auth",
+                "evernote"
+            ],
+            "time": "2013-04-05 18:28:35"
+        },
+        {
+            "name": "opauth/opauth",
+            "version": "0.4.3",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/opauth/opauth.git",
+                "reference": "0.4.3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/opauth/opauth/zipball/0.4.3",
+                "reference": "0.4.3",
+                "shasum": ""
+            },
+            "require": {
+                "php": ">=5.2.0"
+            },
+            "suggest": {
+                "opauth/facebook": "Allows Facebook authentication",
+                "opauth/google": "Allows Google authentication",
+                "opauth/twitter": "Allows Twitter authentication"
+            },
+            "type": "library",
+            "autoload": {
+                "classmap": [
+                    "lib/Opauth/"
+                ]
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "U-Zyn Chua",
+                    "email": "chua@uzyn.com",
+                    "homepage": "http://uzyn.com"
+                }
+            ],
+            "description": "Multi-provider authentication framework for PHP",
+            "homepage": "http://opauth.org",
+            "keywords": [
+                "Authentication",
+                "OpenId",
+                "auth",
+                "facebook",
+                "google",
+                "oauth",
+                "omniauth",
+                "twitter"
+            ],
+            "time": "2013-01-10 07:10:44"
+        }
+    ],
+    "packages-dev": [
+
+    ],
+    "aliases": [
+
+    ],
+    "minimum-stability": "stable",
+    "stability-flags": [
+
+    ],
+    "platform": [
+
+    ],
+    "platform-dev": [
+
+    ]
+}
