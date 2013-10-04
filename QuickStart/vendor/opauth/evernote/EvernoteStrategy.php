@@ -112,7 +112,8 @@ class EvernoteStrategy extends OpauthStrategy
         $session = $_SESSION['_opauth_evernote'];
         unset($_SESSION['_opauth_evernote']);
 
-        if ($_REQUEST['oauth_token'] == $session['oauth_token']) {
+        if ($_REQUEST['oauth_token'] == $session['oauth_token'] && isset($_REQUEST['oauth_verifier'])) {
+
             $this->tmhOAuth->config['user_token'] = $session['oauth_token'];
             $this->tmhOAuth->config['user_secret'] = $session['oauth_token_secret'];
 

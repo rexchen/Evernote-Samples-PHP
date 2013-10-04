@@ -3,20 +3,20 @@
         "This file locks the dependencies of your project to a known state",
         "Read more about it at http://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file"
     ],
-    "hash": "3b1e6f850c06cb88861101ebf8bc51dc",
+    "hash": "f03f044a2b583e3d40743b1d155d6c4e",
     "packages": [
         {
             "name": "evernote/evernote",
-            "version": "1.23.3",
+            "version": "1.25.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/evernote/evernote-sdk-php.git",
-                "reference": "1.23.3"
+                "reference": "a0aa139ec81af610d314be1b70bee74947401790"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/evernote/evernote-sdk-php/zipball/1.23.3",
-                "reference": "1.23.3",
+                "url": "https://api.github.com/repos/evernote/evernote-sdk-php/zipball/a0aa139ec81af610d314be1b70bee74947401790",
+                "reference": "a0aa139ec81af610d314be1b70bee74947401790",
                 "shasum": ""
             },
             "require": {
@@ -45,20 +45,20 @@
                 "evernote",
                 "sdk"
             ],
-            "time": "2013-04-12 17:57:10"
+            "time": "2013-06-12 20:33:05"
         },
         {
             "name": "opauth/evernote",
-            "version": "0.0.1",
+            "version": "0.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/evernote/opauth-evernote.git",
-                "reference": "0.0.1"
+                "reference": "60cacc1b1be108a9c08b2f40c048c3513d750749"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/evernote/opauth-evernote/zipball/0.0.1",
-                "reference": "0.0.1",
+                "url": "https://api.github.com/repos/evernote/opauth-evernote/zipball/60cacc1b1be108a9c08b2f40c048c3513d750749",
+                "reference": "60cacc1b1be108a9c08b2f40c048c3513d750749",
                 "shasum": ""
             },
             "require": {
@@ -88,20 +88,20 @@
                 "auth",
                 "evernote"
             ],
-            "time": "2013-04-05 18:28:35"
+            "time": "2013-06-07 23:28:15"
         },
         {
             "name": "opauth/opauth",
-            "version": "0.4.3",
+            "version": "0.4.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/opauth/opauth.git",
-                "reference": "0.4.3"
+                "reference": "436fb98c2374c9e8ae4d8adddf83214bee4d9c72"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/opauth/opauth/zipball/0.4.3",
-                "reference": "0.4.3",
+                "url": "https://api.github.com/repos/opauth/opauth/zipball/436fb98c2374c9e8ae4d8adddf83214bee4d9c72",
+                "reference": "436fb98c2374c9e8ae4d8adddf83214bee4d9c72",
                 "shasum": ""
             },
             "require": {
@@ -141,7 +141,7 @@
                 "omniauth",
                 "twitter"
             ],
-            "time": "2013-01-10 07:10:44"
+            "time": "2013-05-10 09:01:52"
         }
     ],
     "packages-dev": [

@@ -1585,6 +1585,7 @@ class NoteMetadata {
   public $contentLength = null;
   public $created = null;
   public $updated = null;
+  public $deleted = null;
   public $updateSequenceNum = null;
   public $notebookGuid = null;
   public $tagGuids = null;
@@ -1613,6 +1614,10 @@ class NoteMetadata {
           ),
         7 => array(
           'var' => 'updated',
+          'type' => \TType::I64,
+          ),
+        8 => array(
+          'var' => 'deleted',
           'type' => \TType::I64,
           ),
         10 => array(
@@ -1661,6 +1666,9 @@ class NoteMetadata {
       }
       if (isset($vals['updated'])) {
         $this->updated = $vals['updated'];
+      }
+      if (isset($vals['deleted'])) {
+        $this->deleted = $vals['deleted'];
       }
       if (isset($vals['updateSequenceNum'])) {
         $this->updateSequenceNum = $vals['updateSequenceNum'];
@@ -1733,6 +1741,13 @@ class NoteMetadata {
         case 7:
           if ($ftype == \TType::I64) {
             $xfer += $input->readI64($this->updated);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 8:
+          if ($ftype == \TType::I64) {
+            $xfer += $input->readI64($this->deleted);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -1826,6 +1841,11 @@ class NoteMetadata {
     if ($this->updated !== null) {
       $xfer += $output->writeFieldBegin('updated', \TType::I64, 7);
       $xfer += $output->writeI64($this->updated);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->deleted !== null) {
+      $xfer += $output->writeFieldBegin('deleted', \TType::I64, 8);
+      $xfer += $output->writeI64($this->deleted);
       $xfer += $output->writeFieldEnd();
     }
     if ($this->updateSequenceNum !== null) {
@@ -2139,6 +2159,7 @@ class NotesMetadataResultSpec {
   public $includeContentLength = null;
   public $includeCreated = null;
   public $includeUpdated = null;
+  public $includeDeleted = null;
   public $includeUpdateSequenceNum = null;
   public $includeNotebookGuid = null;
   public $includeTagGuids = null;
@@ -2163,6 +2184,10 @@ class NotesMetadataResultSpec {
           ),
         7 => array(
           'var' => 'includeUpdated',
+          'type' => \TType::BOOL,
+          ),
+        8 => array(
+          'var' => 'includeDeleted',
           'type' => \TType::BOOL,
           ),
         10 => array(
@@ -2203,6 +2228,9 @@ class NotesMetadataResultSpec {
       }
       if (isset($vals['includeUpdated'])) {
         $this->includeUpdated = $vals['includeUpdated'];
+      }
+      if (isset($vals['includeDeleted'])) {
+        $this->includeDeleted = $vals['includeDeleted'];
       }
       if (isset($vals['includeUpdateSequenceNum'])) {
         $this->includeUpdateSequenceNum = $vals['includeUpdateSequenceNum'];
@@ -2268,6 +2296,13 @@ class NotesMetadataResultSpec {
         case 7:
           if ($ftype == \TType::BOOL) {
             $xfer += $input->readBool($this->includeUpdated);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 8:
+          if ($ftype == \TType::BOOL) {
+            $xfer += $input->readBool($this->includeDeleted);
           } else {
             $xfer += $input->skip($ftype);
           }
@@ -2345,6 +2380,11 @@ class NotesMetadataResultSpec {
     if ($this->includeUpdated !== null) {
       $xfer += $output->writeFieldBegin('includeUpdated', \TType::BOOL, 7);
       $xfer += $output->writeBool($this->includeUpdated);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->includeDeleted !== null) {
+      $xfer += $output->writeFieldBegin('includeDeleted', \TType::BOOL, 8);
+      $xfer += $output->writeBool($this->includeDeleted);
       $xfer += $output->writeFieldEnd();
     }
     if ($this->includeUpdateSequenceNum !== null) {
@@ -3003,6 +3043,7 @@ class RelatedQuery {
   public $noteGuid = null;
   public $plainText = null;
   public $filter = null;
+  public $referenceUri = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -3020,6 +3061,10 @@ class RelatedQuery {
           'type' => \TType::STRUCT,
           'class' => '\EDAM\NoteStore\NoteFilter',
           ),
+        4 => array(
+          'var' => 'referenceUri',
+          'type' => \TType::STRING,
+          ),
         );
     }
     if (is_array($vals)) {
@@ -3031,6 +3076,9 @@ class RelatedQuery {
       }
       if (isset($vals['filter'])) {
         $this->filter = $vals['filter'];
+      }
+      if (isset($vals['referenceUri'])) {
+        $this->referenceUri = $vals['referenceUri'];
       }
     }
   }
@@ -3076,6 +3124,13 @@ class RelatedQuery {
             $xfer += $input->skip($ftype);
           }
           break;
+        case 4:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->referenceUri);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -3107,6 +3162,11 @@ class RelatedQuery {
       $xfer += $this->filter->write($output);
       $xfer += $output->writeFieldEnd();
     }
+    if ($this->referenceUri !== null) {
+      $xfer += $output->writeFieldBegin('referenceUri', \TType::STRING, 4);
+      $xfer += $output->writeString($this->referenceUri);
+      $xfer += $output->writeFieldEnd();
+    }
     $xfer += $output->writeFieldStop();
     $xfer += $output->writeStructEnd();
     return $xfer;
@@ -3121,7 +3181,6 @@ class RelatedResult {
   public $notebooks = null;
   public $tags = null;
   public $containingNotebooks = null;
-  public $debugInfo = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -3162,10 +3221,6 @@ class RelatedResult {
             'class' => '\EDAM\Types\NotebookDescriptor',
             ),
           ),
-        5 => array(
-          'var' => 'debugInfo',
-          'type' => \TType::STRING,
-          ),
         );
     }
     if (is_array($vals)) {
@@ -3180,9 +3235,6 @@ class RelatedResult {
       }
       if (isset($vals['containingNotebooks'])) {
         $this->containingNotebooks = $vals['containingNotebooks'];
-      }
-      if (isset($vals['debugInfo'])) {
-        $this->debugInfo = $vals['debugInfo'];
       }
     }
   }
@@ -3278,13 +3330,6 @@ class RelatedResult {
             $xfer += $input->skip($ftype);
           }
           break;
-        case 5:
-          if ($ftype == \TType::STRING) {
-            $xfer += $input->readString($this->debugInfo);
-          } else {
-            $xfer += $input->skip($ftype);
-          }
-          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -3366,11 +3411,6 @@ class RelatedResult {
       }
       $xfer += $output->writeFieldEnd();
     }
-    if ($this->debugInfo !== null) {
-      $xfer += $output->writeFieldBegin('debugInfo', \TType::STRING, 5);
-      $xfer += $output->writeString($this->debugInfo);
-      $xfer += $output->writeFieldEnd();
-    }
     $xfer += $output->writeFieldStop();
     $xfer += $output->writeStructEnd();
     return $xfer;
@@ -3386,7 +3426,6 @@ class RelatedResultSpec {
   public $maxTags = null;
   public $writableNotebooksOnly = null;
   public $includeContainingNotebooks = null;
-  public $includeDebugInfo = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -3411,10 +3450,6 @@ class RelatedResultSpec {
           'var' => 'includeContainingNotebooks',
           'type' => \TType::BOOL,
           ),
-        6 => array(
-          'var' => 'includeDebugInfo',
-          'type' => \TType::BOOL,
-          ),
         );
     }
     if (is_array($vals)) {
@@ -3432,9 +3467,6 @@ class RelatedResultSpec {
       }
       if (isset($vals['includeContainingNotebooks'])) {
         $this->includeContainingNotebooks = $vals['includeContainingNotebooks'];
-      }
-      if (isset($vals['includeDebugInfo'])) {
-        $this->includeDebugInfo = $vals['includeDebugInfo'];
       }
     }
   }
@@ -3493,13 +3525,6 @@ class RelatedResultSpec {
             $xfer += $input->skip($ftype);
           }
           break;
-        case 6:
-          if ($ftype == \TType::BOOL) {
-            $xfer += $input->readBool($this->includeDebugInfo);
-          } else {
-            $xfer += $input->skip($ftype);
-          }
-          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -3536,11 +3561,6 @@ class RelatedResultSpec {
     if ($this->includeContainingNotebooks !== null) {
       $xfer += $output->writeFieldBegin('includeContainingNotebooks', \TType::BOOL, 5);
       $xfer += $output->writeBool($this->includeContainingNotebooks);
-      $xfer += $output->writeFieldEnd();
-    }
-    if ($this->includeDebugInfo !== null) {
-      $xfer += $output->writeFieldBegin('includeDebugInfo', \TType::BOOL, 6);
-      $xfer += $output->writeBool($this->includeDebugInfo);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();

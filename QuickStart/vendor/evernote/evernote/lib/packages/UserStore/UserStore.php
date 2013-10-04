@@ -13,8 +13,10 @@ include_once $GLOBALS['THRIFT_ROOT'].'/packages/UserStore/UserStore_types.php';
 interface UserStoreIf {
   public function checkVersion($clientName, $edamVersionMajor, $edamVersionMinor);
   public function getBootstrapInfo($locale);
-  public function authenticate($username, $password, $consumerKey, $consumerSecret);
-  public function authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription);
+  public function authenticate($username, $password, $consumerKey, $consumerSecret, $supportsTwoFactor);
+  public function authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription, $supportsTwoFactor);
+  public function completeTwoFactorAuthentication($authenticationToken, $oneTimeCode, $deviceIdentifier, $deviceDescription);
+  public function revokeLongSession($authenticationToken);
   public function authenticateToBusiness($authenticationToken);
   public function refreshAuthentication($authenticationToken);
   public function getUser($authenticationToken);
@@ -138,19 +140,20 @@ class UserStoreClient implements \EDAM\UserStore\UserStoreIf {
     throw new \Exception("getBootstrapInfo failed: unknown result");
   }
 
-  public function authenticate($username, $password, $consumerKey, $consumerSecret)
+  public function authenticate($username, $password, $consumerKey, $consumerSecret, $supportsTwoFactor)
   {
-    $this->send_authenticate($username, $password, $consumerKey, $consumerSecret);
+    $this->send_authenticate($username, $password, $consumerKey, $consumerSecret, $supportsTwoFactor);
     return $this->recv_authenticate();
   }
 
-  public function send_authenticate($username, $password, $consumerKey, $consumerSecret)
+  public function send_authenticate($username, $password, $consumerKey, $consumerSecret, $supportsTwoFactor)
   {
     $args = new \EDAM\UserStore\UserStore_authenticate_args();
     $args->username = $username;
     $args->password = $password;
     $args->consumerKey = $consumerKey;
     $args->consumerSecret = $consumerSecret;
+    $args->supportsTwoFactor = $supportsTwoFactor;
     $bin_accel = ($this->output_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
     {
@@ -198,13 +201,13 @@ class UserStoreClient implements \EDAM\UserStore\UserStoreIf {
     throw new \Exception("authenticate failed: unknown result");
   }
 
-  public function authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription)
+  public function authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription, $supportsTwoFactor)
   {
-    $this->send_authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription);
+    $this->send_authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription, $supportsTwoFactor);
     return $this->recv_authenticateLongSession();
   }
 
-  public function send_authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription)
+  public function send_authenticateLongSession($username, $password, $consumerKey, $consumerSecret, $deviceIdentifier, $deviceDescription, $supportsTwoFactor)
   {
     $args = new \EDAM\UserStore\UserStore_authenticateLongSession_args();
     $args->username = $username;
@@ -213,6 +216,7 @@ class UserStoreClient implements \EDAM\UserStore\UserStoreIf {
     $args->consumerSecret = $consumerSecret;
     $args->deviceIdentifier = $deviceIdentifier;
     $args->deviceDescription = $deviceDescription;
+    $args->supportsTwoFactor = $supportsTwoFactor;
     $bin_accel = ($this->output_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_write_binary');
     if ($bin_accel)
     {
@@ -258,6 +262,120 @@ class UserStoreClient implements \EDAM\UserStore\UserStoreIf {
       throw $result->systemException;
     }
     throw new \Exception("authenticateLongSession failed: unknown result");
+  }
+
+  public function completeTwoFactorAuthentication($authenticationToken, $oneTimeCode, $deviceIdentifier, $deviceDescription)
+  {
+    $this->send_completeTwoFactorAuthentication($authenticationToken, $oneTimeCode, $deviceIdentifier, $deviceDescription);
+    return $this->recv_completeTwoFactorAuthentication();
+  }
+
+  public function send_completeTwoFactorAuthentication($authenticationToken, $oneTimeCode, $deviceIdentifier, $deviceDescription)
+  {
+    $args = new \EDAM\UserStore\UserStore_completeTwoFactorAuthentication_args();
+    $args->authenticationToken = $authenticationToken;
+    $args->oneTimeCode = $oneTimeCode;
+    $args->deviceIdentifier = $deviceIdentifier;
+    $args->deviceDescription = $deviceDescription;
+    $bin_accel = ($this->output_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'completeTwoFactorAuthentication', \TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('completeTwoFactorAuthentication', \TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_completeTwoFactorAuthentication()
+  {
+    $bin_accel = ($this->input_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\EDAM\UserStore\UserStore_completeTwoFactorAuthentication_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == \TMessageType::EXCEPTION) {
+        $x = new \TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \EDAM\UserStore\UserStore_completeTwoFactorAuthentication_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->success !== null) {
+      return $result->success;
+    }
+    if ($result->userException !== null) {
+      throw $result->userException;
+    }
+    if ($result->systemException !== null) {
+      throw $result->systemException;
+    }
+    throw new \Exception("completeTwoFactorAuthentication failed: unknown result");
+  }
+
+  public function revokeLongSession($authenticationToken)
+  {
+    $this->send_revokeLongSession($authenticationToken);
+    $this->recv_revokeLongSession();
+  }
+
+  public function send_revokeLongSession($authenticationToken)
+  {
+    $args = new \EDAM\UserStore\UserStore_revokeLongSession_args();
+    $args->authenticationToken = $authenticationToken;
+    $bin_accel = ($this->output_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_write_binary');
+    if ($bin_accel)
+    {
+      thrift_protocol_write_binary($this->output_, 'revokeLongSession', \TMessageType::CALL, $args, $this->seqid_, $this->output_->isStrictWrite());
+    }
+    else
+    {
+      $this->output_->writeMessageBegin('revokeLongSession', \TMessageType::CALL, $this->seqid_);
+      $args->write($this->output_);
+      $this->output_->writeMessageEnd();
+      $this->output_->getTransport()->flush();
+    }
+  }
+
+  public function recv_revokeLongSession()
+  {
+    $bin_accel = ($this->input_ instanceof \TProtocol::$TBINARYPROTOCOLACCELERATED) && function_exists('thrift_protocol_read_binary');
+    if ($bin_accel) $result = thrift_protocol_read_binary($this->input_, '\EDAM\UserStore\UserStore_revokeLongSession_result', $this->input_->isStrictRead());
+    else
+    {
+      $rseqid = 0;
+      $fname = null;
+      $mtype = 0;
+
+      $this->input_->readMessageBegin($fname, $mtype, $rseqid);
+      if ($mtype == \TMessageType::EXCEPTION) {
+        $x = new \TApplicationException();
+        $x->read($this->input_);
+        $this->input_->readMessageEnd();
+        throw $x;
+      }
+      $result = new \EDAM\UserStore\UserStore_revokeLongSession_result();
+      $result->read($this->input_);
+      $this->input_->readMessageEnd();
+    }
+    if ($result->userException !== null) {
+      throw $result->userException;
+    }
+    if ($result->systemException !== null) {
+      throw $result->systemException;
+    }
+    return;
   }
 
   public function authenticateToBusiness($authenticationToken)
@@ -614,7 +732,7 @@ class UserStore_checkVersion_args {
 
   public $clientName = null;
   public $edamVersionMajor = 1;
-  public $edamVersionMinor = 23;
+  public $edamVersionMinor = 25;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -949,6 +1067,7 @@ class UserStore_authenticate_args {
   public $password = null;
   public $consumerKey = null;
   public $consumerSecret = null;
+  public $supportsTwoFactor = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -969,6 +1088,10 @@ class UserStore_authenticate_args {
           'var' => 'consumerSecret',
           'type' => \TType::STRING,
           ),
+        5 => array(
+          'var' => 'supportsTwoFactor',
+          'type' => \TType::BOOL,
+          ),
         );
     }
     if (is_array($vals)) {
@@ -983,6 +1106,9 @@ class UserStore_authenticate_args {
       }
       if (isset($vals['consumerSecret'])) {
         $this->consumerSecret = $vals['consumerSecret'];
+      }
+      if (isset($vals['supportsTwoFactor'])) {
+        $this->supportsTwoFactor = $vals['supportsTwoFactor'];
       }
     }
   }
@@ -1034,6 +1160,13 @@ class UserStore_authenticate_args {
             $xfer += $input->skip($ftype);
           }
           break;
+        case 5:
+          if ($ftype == \TType::BOOL) {
+            $xfer += $input->readBool($this->supportsTwoFactor);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -1065,6 +1198,11 @@ class UserStore_authenticate_args {
     if ($this->consumerSecret !== null) {
       $xfer += $output->writeFieldBegin('consumerSecret', \TType::STRING, 4);
       $xfer += $output->writeString($this->consumerSecret);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->supportsTwoFactor !== null) {
+      $xfer += $output->writeFieldBegin('supportsTwoFactor', \TType::BOOL, 5);
+      $xfer += $output->writeBool($this->supportsTwoFactor);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();
@@ -1204,6 +1342,7 @@ class UserStore_authenticateLongSession_args {
   public $consumerSecret = null;
   public $deviceIdentifier = null;
   public $deviceDescription = null;
+  public $supportsTwoFactor = null;
 
   public function __construct($vals=null) {
     if (!isset(self::$_TSPEC)) {
@@ -1232,6 +1371,10 @@ class UserStore_authenticateLongSession_args {
           'var' => 'deviceDescription',
           'type' => \TType::STRING,
           ),
+        7 => array(
+          'var' => 'supportsTwoFactor',
+          'type' => \TType::BOOL,
+          ),
         );
     }
     if (is_array($vals)) {
@@ -1252,6 +1395,9 @@ class UserStore_authenticateLongSession_args {
       }
       if (isset($vals['deviceDescription'])) {
         $this->deviceDescription = $vals['deviceDescription'];
+      }
+      if (isset($vals['supportsTwoFactor'])) {
+        $this->supportsTwoFactor = $vals['supportsTwoFactor'];
       }
     }
   }
@@ -1317,6 +1463,13 @@ class UserStore_authenticateLongSession_args {
             $xfer += $input->skip($ftype);
           }
           break;
+        case 7:
+          if ($ftype == \TType::BOOL) {
+            $xfer += $input->readBool($this->supportsTwoFactor);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
         default:
           $xfer += $input->skip($ftype);
           break;
@@ -1358,6 +1511,11 @@ class UserStore_authenticateLongSession_args {
     if ($this->deviceDescription !== null) {
       $xfer += $output->writeFieldBegin('deviceDescription', \TType::STRING, 6);
       $xfer += $output->writeString($this->deviceDescription);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->supportsTwoFactor !== null) {
+      $xfer += $output->writeFieldBegin('supportsTwoFactor', \TType::BOOL, 7);
+      $xfer += $output->writeBool($this->supportsTwoFactor);
       $xfer += $output->writeFieldEnd();
     }
     $xfer += $output->writeFieldStop();
@@ -1471,6 +1629,427 @@ class UserStore_authenticateLongSession_result {
       $xfer += $this->success->write($output);
       $xfer += $output->writeFieldEnd();
     }
+    if ($this->userException !== null) {
+      $xfer += $output->writeFieldBegin('userException', \TType::STRUCT, 1);
+      $xfer += $this->userException->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->systemException !== null) {
+      $xfer += $output->writeFieldBegin('systemException', \TType::STRUCT, 2);
+      $xfer += $this->systemException->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class UserStore_completeTwoFactorAuthentication_args {
+  static $_TSPEC;
+
+  public $authenticationToken = null;
+  public $oneTimeCode = null;
+  public $deviceIdentifier = null;
+  public $deviceDescription = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'authenticationToken',
+          'type' => \TType::STRING,
+          ),
+        2 => array(
+          'var' => 'oneTimeCode',
+          'type' => \TType::STRING,
+          ),
+        3 => array(
+          'var' => 'deviceIdentifier',
+          'type' => \TType::STRING,
+          ),
+        4 => array(
+          'var' => 'deviceDescription',
+          'type' => \TType::STRING,
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['authenticationToken'])) {
+        $this->authenticationToken = $vals['authenticationToken'];
+      }
+      if (isset($vals['oneTimeCode'])) {
+        $this->oneTimeCode = $vals['oneTimeCode'];
+      }
+      if (isset($vals['deviceIdentifier'])) {
+        $this->deviceIdentifier = $vals['deviceIdentifier'];
+      }
+      if (isset($vals['deviceDescription'])) {
+        $this->deviceDescription = $vals['deviceDescription'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'UserStore_completeTwoFactorAuthentication_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == \TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->authenticationToken);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->oneTimeCode);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 3:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->deviceIdentifier);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 4:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->deviceDescription);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('UserStore_completeTwoFactorAuthentication_args');
+    if ($this->authenticationToken !== null) {
+      $xfer += $output->writeFieldBegin('authenticationToken', \TType::STRING, 1);
+      $xfer += $output->writeString($this->authenticationToken);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->oneTimeCode !== null) {
+      $xfer += $output->writeFieldBegin('oneTimeCode', \TType::STRING, 2);
+      $xfer += $output->writeString($this->oneTimeCode);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->deviceIdentifier !== null) {
+      $xfer += $output->writeFieldBegin('deviceIdentifier', \TType::STRING, 3);
+      $xfer += $output->writeString($this->deviceIdentifier);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->deviceDescription !== null) {
+      $xfer += $output->writeFieldBegin('deviceDescription', \TType::STRING, 4);
+      $xfer += $output->writeString($this->deviceDescription);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class UserStore_completeTwoFactorAuthentication_result {
+  static $_TSPEC;
+
+  public $success = null;
+  public $userException = null;
+  public $systemException = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        0 => array(
+          'var' => 'success',
+          'type' => \TType::STRUCT,
+          'class' => '\EDAM\UserStore\AuthenticationResult',
+          ),
+        1 => array(
+          'var' => 'userException',
+          'type' => \TType::STRUCT,
+          'class' => '\EDAM\Error\EDAMUserException',
+          ),
+        2 => array(
+          'var' => 'systemException',
+          'type' => \TType::STRUCT,
+          'class' => '\EDAM\Error\EDAMSystemException',
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['success'])) {
+        $this->success = $vals['success'];
+      }
+      if (isset($vals['userException'])) {
+        $this->userException = $vals['userException'];
+      }
+      if (isset($vals['systemException'])) {
+        $this->systemException = $vals['systemException'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'UserStore_completeTwoFactorAuthentication_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == \TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 0:
+          if ($ftype == \TType::STRUCT) {
+            $this->success = new \EDAM\UserStore\AuthenticationResult();
+            $xfer += $this->success->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 1:
+          if ($ftype == \TType::STRUCT) {
+            $this->userException = new \EDAM\Error\EDAMUserException();
+            $xfer += $this->userException->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
+          if ($ftype == \TType::STRUCT) {
+            $this->systemException = new \EDAM\Error\EDAMSystemException();
+            $xfer += $this->systemException->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('UserStore_completeTwoFactorAuthentication_result');
+    if ($this->success !== null) {
+      if (!is_object($this->success)) {
+        throw new \TProtocolException('Bad type in structure.', \TProtocolException::INVALID_DATA);
+      }
+      $xfer += $output->writeFieldBegin('success', \TType::STRUCT, 0);
+      $xfer += $this->success->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->userException !== null) {
+      $xfer += $output->writeFieldBegin('userException', \TType::STRUCT, 1);
+      $xfer += $this->userException->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    if ($this->systemException !== null) {
+      $xfer += $output->writeFieldBegin('systemException', \TType::STRUCT, 2);
+      $xfer += $this->systemException->write($output);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class UserStore_revokeLongSession_args {
+  static $_TSPEC;
+
+  public $authenticationToken = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'authenticationToken',
+          'type' => \TType::STRING,
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['authenticationToken'])) {
+        $this->authenticationToken = $vals['authenticationToken'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'UserStore_revokeLongSession_args';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == \TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == \TType::STRING) {
+            $xfer += $input->readString($this->authenticationToken);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('UserStore_revokeLongSession_args');
+    if ($this->authenticationToken !== null) {
+      $xfer += $output->writeFieldBegin('authenticationToken', \TType::STRING, 1);
+      $xfer += $output->writeString($this->authenticationToken);
+      $xfer += $output->writeFieldEnd();
+    }
+    $xfer += $output->writeFieldStop();
+    $xfer += $output->writeStructEnd();
+    return $xfer;
+  }
+
+}
+
+class UserStore_revokeLongSession_result {
+  static $_TSPEC;
+
+  public $userException = null;
+  public $systemException = null;
+
+  public function __construct($vals=null) {
+    if (!isset(self::$_TSPEC)) {
+      self::$_TSPEC = array(
+        1 => array(
+          'var' => 'userException',
+          'type' => \TType::STRUCT,
+          'class' => '\EDAM\Error\EDAMUserException',
+          ),
+        2 => array(
+          'var' => 'systemException',
+          'type' => \TType::STRUCT,
+          'class' => '\EDAM\Error\EDAMSystemException',
+          ),
+        );
+    }
+    if (is_array($vals)) {
+      if (isset($vals['userException'])) {
+        $this->userException = $vals['userException'];
+      }
+      if (isset($vals['systemException'])) {
+        $this->systemException = $vals['systemException'];
+      }
+    }
+  }
+
+  public function getName() {
+    return 'UserStore_revokeLongSession_result';
+  }
+
+  public function read($input)
+  {
+    $xfer = 0;
+    $fname = null;
+    $ftype = 0;
+    $fid = 0;
+    $xfer += $input->readStructBegin($fname);
+    while (true)
+    {
+      $xfer += $input->readFieldBegin($fname, $ftype, $fid);
+      if ($ftype == \TType::STOP) {
+        break;
+      }
+      switch ($fid)
+      {
+        case 1:
+          if ($ftype == \TType::STRUCT) {
+            $this->userException = new \EDAM\Error\EDAMUserException();
+            $xfer += $this->userException->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        case 2:
+          if ($ftype == \TType::STRUCT) {
+            $this->systemException = new \EDAM\Error\EDAMSystemException();
+            $xfer += $this->systemException->read($input);
+          } else {
+            $xfer += $input->skip($ftype);
+          }
+          break;
+        default:
+          $xfer += $input->skip($ftype);
+          break;
+      }
+      $xfer += $input->readFieldEnd();
+    }
+    $xfer += $input->readStructEnd();
+    return $xfer;
+  }
+
+  public function write($output) {
+    $xfer = 0;
+    $xfer += $output->writeStructBegin('UserStore_revokeLongSession_result');
     if ($this->userException !== null) {
       $xfer += $output->writeFieldBegin('userException', \TType::STRUCT, 1);
       $xfer += $this->userException->write($output);
