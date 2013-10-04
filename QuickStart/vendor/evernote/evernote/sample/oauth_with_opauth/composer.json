@@ -1,7 +1,0 @@
-{
-  "require": {
-    "opauth/opauth": "*",
-    "evernote/evernote": "*",
-    "opauth/evernote": "*"
-  }
-}
